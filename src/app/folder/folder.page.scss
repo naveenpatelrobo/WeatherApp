@@ -1,0 +1,355 @@
+ion-menu-button {
+  color: var(--ion-color-primary);
+}
+
+ion-toolbar {
+  --background: none;
+}
+
+ion-header {
+  box-shadow: none;
+  margin: auto;
+  width: 80%;
+
+  .header-div {
+    display: flex;
+    justify-content: space-between;
+
+    // ion-searchbar {
+    //   width: 35%;
+    //   --background: none;
+    // }
+
+    .search-container {
+      ion-searchbar {
+        // width: 35%;
+        --background: none;
+      }
+
+      ion-list {
+        height: 20rem;
+        overflow: scroll;
+      }
+    }
+  }
+}
+
+#container {
+  margin: auto;
+  width: 80%;
+  text-align: center;
+}
+
+
+/* Toolbar Styling */
+.custom-toolbar {
+  --background: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .web-tabs-main {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 0.1rem solid #ffffff75;
+  }
+}
+
+/* Tabs Container */
+.tabs-container {
+  display: flex;
+  align-items: center;
+
+
+  /* Tab Buttons */
+  ion-button {
+    font-size: 14px;
+    --color: white;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin: 0;
+    position: relative;
+  }
+
+  /* Active Tab Indicator */
+  ion-button.active {
+    font-weight: bold;
+    --color: #ffcc00;
+  }
+
+  .activeIcon {
+    font-weight: bold;
+    --color: #ffcc00;
+  }
+
+
+  ion-button.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 2px;
+    background: #ffcc00;
+    border-radius: 5px;
+  }
+}
+.main-home-div {
+  text-align: start;
+  .datetime{
+    display: none;
+  }
+
+  ion-button {
+    --color: #fff;
+  }
+
+  ion-button.active {
+    --color: #ffcc00 !important;
+  }
+}
+
+
+/* Date & Time Styling */
+.datetime {
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+  margin: auto 0;
+}
+
+
+/* Make ion-tab-bar non-sticky */
+ion-tab-bar {
+  --offset-top: none;
+  position: relative !important;
+  /* Removes fixed positioning */
+  background: none !important;
+  /* Removes background */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  /* Optional underline */
+  display: flex;
+  justify-content: center;
+  padding-bottom: 5px;
+}
+
+/* This style is for demonstration purposes only. */
+/* It's not required for the tabs to function. */
+.example-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.main-menu-div {
+  display: flex;
+  margin: auto;
+  width: 80%;
+  border-bottom: 0.1rem solid #ffffff45;
+}
+
+.main-menu {
+  display: flex;
+  justify-content: start;
+  // border-bottom: 0.1rem solid #ffffff45;
+}
+
+.main-menu-view {
+  margin: auto;
+  width: 80%;
+  // height: 70vh;
+
+  .temp-section {
+    text-align: center;
+
+    ion-icon {
+      font-size: 8rem;
+    }
+
+    .temp-cf-div {
+      display: flex;
+      justify-content: center;
+
+      h1 {
+        font-size: 8rem;
+      }
+
+      ion-segment {
+        height: 2rem;
+        width: 8%;
+        margin: auto 0;
+        border: 0.1rem solid #fff;
+      }
+
+      ion-segment-button {
+        height: 1rem;
+        width: 8%;
+      }
+    }
+  }
+}
+
+.detail-div {
+  width: 80%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  border-top: 0.1rem solid #ffffff45;
+
+  .details-subdiv {
+    margin: 2rem 2rem;
+    display: flex;
+
+    ion-icon {
+      font-size: 2rem;
+    }
+
+    div {
+      display: grid;
+      margin-left: 0.5rem;
+
+      ion-label:nth-child(2) {
+        font-size: 1.3rem;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.favourite-main {
+  // --color: #fff;
+  --ion-item-background: none;
+
+  ion-list-header {
+    --background: none;
+  }
+
+  ion-item {
+    --color: #fff;
+    --ion-item-background: #ffffff1f;
+
+    .list-subitem {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .city-name {
+        width: 28%;
+      }
+
+      ion-icon {
+        font-size: 2rem;
+      }
+
+      .center-text {
+        display: flex;
+        align-items: center;
+        width: 40%;
+
+        ion-icon {
+          font-size: 3rem;
+          margin: 0.5rem;
+        }
+
+        h1 {
+          margin: 0.5rem;
+        }
+
+      }
+
+      .fav-icon {
+        color: #ffcc00;
+      }
+    }
+  }
+}
+
+.no-data-div {
+  display: grid;
+  justify-content: center;
+  margin: 8rem auto;
+
+  ion-icon {
+    font-size: 8rem;
+  }
+}
+
+ion-list-header {
+  ion-button {
+    --color: #fff;
+  }
+}
+
+
+ion-segment-button::part(indicator-background) {
+  background: #ffcc00;
+}
+
+/* Material Design styles */
+ion-segment-button.md::part(native) {
+  color: #fff;
+}
+
+.segment-button-checked.md::part(native) {
+  color: #ffcc00;
+}
+
+/* iOS styles */
+ion-segment-button.ios::part(native) {
+  color: #ffcc00;
+}
+
+.segment-button-checked.ios::part(native) {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  ion-header {
+    width: 100%;
+
+    ion-buttons {
+      margin: auto;
+    }
+  }
+
+  .main-menu-div {
+    border-bottom: none;
+
+    ion-segment {
+      display: none;
+    }
+
+    .datetime {
+      display: none;
+
+    }
+  }
+
+  .main-menu-view {
+    width: 100%;
+
+    ion-list-header {
+      font-size: 1rem;
+      color: #ffffff75;
+
+    }
+  }
+
+  .main-home-div {
+    text-align: center;
+
+    .datetime {
+      margin: 3rem auto 0 auto;
+      font-size: 1.5rem;
+      letter-spacing: 0.1rem;
+      color: #ffffffa8;
+    }
+  }
+
+  .detail-div {
+    overflow: scroll;
+  }
+}

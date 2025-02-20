@@ -1,0 +1,24 @@
+ion-app {
+  // --ion-background-color: red; /* Change to your preferred color */
+  // --ion-background-color: linear-gradient(to right, #4a00e0, #8e2de2, #f27121) !important;
+  --ion-background-color: linear-gradient(to right, #3a2db3, #7b52b9, #d47dab) !important;
+}
+@media (min-width: 768px) { 
+  ion-menu {
+    display: none !important; /* Hide split-pane on web view */
+  }
+}
+
+@media (max-width: 768px) { 
+  ion-menu {
+    // display: block !important; /* Hide split-pane on web view */
+  }
+  ion-item{
+    --background: #fff !important;
+    --color: #000 !important;
+  }
+
+  ion-content{
+    --ion-background-color:#fff !important;
+  }
+}
