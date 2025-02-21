@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -6,19 +6,12 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class WeatherService {
 
-  private dataSubject = new BehaviorSubject<string>('home'); 
+  // variable to handle sidenav click 
+  private dataSubject = new BehaviorSubject<string>('home');
   tabData$ = this.dataSubject.asObservable();
 
-  // updateData(newData: string) {
-  //   this.dataSubject.next(newData);
-  // }
-  updateData(value: string) {
-    if (this.dataSubject.getValue() !== value) {  
-      this.dataSubject.next(value);
-    }
-  }
-  
 
+  // master city data 
   private indiaWeatherMasterData = [
     {
       id: 1,
@@ -162,30 +155,6 @@ export class WeatherService {
     },
   ];
 
-  private weatherData = [
-    {
-      id: 1,
-      location: 'Mumbai, Maharastra',
-      temperature: 32,
-      condition: 'Sunny',
-      icon: 'sunny',
-    },
-    {
-      id: 2,
-      location: 'Delhi',
-      temperature: 28,
-      condition: 'Cloudy',
-      icon: 'cloudy',
-    },
-    {
-      id: 3,
-      location: 'Bangalore',
-      temperature: 25,
-      condition: 'Rainy',
-      icon: 'rainy',
-    }
-  ];
-
   private masterData: any = [];
 
   private currentWeatherDetails = [
@@ -211,10 +180,13 @@ export class WeatherService {
     }
   }
 
-  getMasterData() {
-    this.masterData = JSON.parse(localStorage.getItem('weatherData') || '[]');
-    return this.masterData;
+  // update sidenav click 
+  updateData(value: string) {
+    if (this.dataSubject.getValue() !== value) {
+      this.dataSubject.next(value);
+    }
   }
+
   /**
    * Get all stored weather data.
    * @returns An array of weather objects.
@@ -239,19 +211,10 @@ export class WeatherService {
     return this.currentWeatherDetails;
   }
 
-  /**
-   * Get weather data by location name.
-   * @param location - City name to filter weather data.
-   * @returns A single weather object or undefined if not found.
-   */
-  getWeatherByLocation(location: string) {
-    return this.weatherData.find((data) => data.location.toLowerCase() === location.toLowerCase());
-  }
-
   getFavouriteWeatherData() {
     const storedData = localStorage.getItem('weatherData');
     if (!storedData) return [];
-  
+
     const { favouriteWeather } = JSON.parse(storedData);
     return favouriteWeather
       .map((fav: any) => {
@@ -259,11 +222,11 @@ export class WeatherService {
         return weather ? { ...weather, timestamp: fav.timestamp } : null;
       })
       .filter(Boolean); // Removes null values efficiently
-  }  
+  }
 
-  updateFavouriteweatherData(id: number,remove = false) {
+  updateFavouriteweatherData(id: number, remove = false) {
     let tempData = JSON.parse(localStorage.getItem('weatherData') || '[]');
-    if(remove){
+    if (remove) {
       tempData.favouriteWeather = [];
     } else {
       const index = tempData.favouriteWeather.findIndex((item: any) => item.id === id);
@@ -272,7 +235,7 @@ export class WeatherService {
         tempData.favouriteWeather.splice(index, 1);
       } else {
         // ID not found, add it
-        tempData.favouriteWeather.push({ id:id, timestamp: new Date().toISOString() });
+        tempData.favouriteWeather.push({ id: id, timestamp: new Date().toISOString() });
       }
     }
     let tempObj = {
@@ -285,7 +248,7 @@ export class WeatherService {
   getRecentSearchedWeatherData() {
     const storedData = localStorage.getItem('weatherData');
     if (!storedData) return [];
-  
+
     const { recentSearchedData } = JSON.parse(storedData);
     return recentSearchedData
       .map((fav: any) => {
@@ -293,11 +256,11 @@ export class WeatherService {
         return weather ? { ...weather, timestamp: fav.timestamp } : null;
       })
       .filter(Boolean); // Removes null values efficiently
-  }  
+  }
 
-  updateSearchWeather(weather:any,remove = false){
+  updateSearchWeather(weather: any, remove = false) {
     let tempData = JSON.parse(localStorage.getItem('weatherData') || '[]');
-    if(remove){
+    if (remove) {
       tempData.recentSearchedData = [];
     } else {
       const index = tempData.recentSearchedData.findIndex((item: any) => item.id === weather.id);
@@ -307,7 +270,7 @@ export class WeatherService {
         tempData.recentSearchedData[index].timestamp = new Date().toISOString();
       } else {
         // ID not found, add it
-        tempData.recentSearchedData.push({ id:weather.id, timestamp: new Date().toISOString() });
+        tempData.recentSearchedData.push({ id: weather.id, timestamp: new Date().toISOString() });
       }
     }
     let tempObj = {

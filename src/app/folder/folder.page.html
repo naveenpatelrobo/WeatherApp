@@ -7,26 +7,19 @@
     </ion-buttons>
     <div class="header-div">
       <!-- App Title with Weather Icon -->
-      <ion-title>
+      <!-- <ion-title>
         <ion-icon name="cloudy"></ion-icon> WEATHER
-      </ion-title>
+      </ion-title> -->
+      <h4 class="web-head-text"><ion-icon name="cloudy"></ion-icon> WEATHER</h4>
+      <h4 *ngIf="!popoverOpen" class="mobile-head-text"> <ion-icon name="cloudy"
+          *ngIf="selectedSegment == 'home'"></ion-icon> {{selectedSegment == 'home' ? 'WAETHER' : selectedSegment ==
+        'favourite' ? 'Favorite' : 'Recent Search'}}</h4>
       <!-- Search Bar for Weather Locations -->
-      <div class="search-container">
-        <ion-searchbar
-          [(ngModel)]="searchTerm"
-          placeholder="Search city..."
-          (ionFocus)="onSearchFocus()"
-          (ionInput)="filterWeatherData()">
+      <ion-icon name="search-outline" class="mobileSearchIcon" (click)="openPopover('')"></ion-icon>
+      <div class="searchBar-Maindiv" [ngClass]="{ 'searchbar-mobile': popoverOpen }">
+        <ion-searchbar class="searchBar" [(ngModel)]="searchTerm" (ionBlur)="popOverCloseOutSideClick()" debounce="300"
+          (ionInput)="filterWeatherData()" (click)="openPopover($event)" placeholder="Search...">
         </ion-searchbar>
-        <ion-list *ngIf="showList">
-          <ion-item *ngFor="let weather of filteredWeatherData" (click)="onSelectItem(weather)">
-            <ion-icon slot="start" [name]="weather.icon"></ion-icon>
-            <ion-label>
-              <h2>{{ weather.location }}</h2>
-              <p>{{ weather.temperature }}°C - {{ weather.condition }}</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
       </div>
     </div>
   </ion-toolbar>
@@ -53,18 +46,17 @@
   <ion-segment-view class="main-menu-view">
     <!-- Home Section -->
     <ion-segment-content id="home">
-      <!-- <ng-container *ngIf="selectedTab === 'home'"> -->
       <div class="main-home-div">
         <div>
-              <!-- Display Current Date & Time Mobile-->
+          <!-- Display Current Date & Time Mobile-->
           <div class="datetime">
             {{ currentDate | date:'EEE, d MMM y hh:mm a' }}
           </div>
           <!-- Display Current Location -->
           <h2>{{ currentWeatherData.location }}</h2>
           <!-- Favorite Toggle Button -->
-          <ion-button fill="clear" [ngClass]="{ 'active': isFavouriteCheck(currentWeatherData.id) }" (click)="toggleFavourite()"
-            aria-label="Toggle Favourite">
+          <ion-button fill="clear" [ngClass]="{ 'active': isFavouriteCheck(currentWeatherData.id) }"
+            (click)="toggleFavourite()" aria-label="Toggle Favourite">
             <ion-icon [name]="isFavouriteCheck(currentWeatherData.id) ? 'heart' : 'heart-outline'"></ion-icon>
             {{isFavouriteCheck(currentWeatherData.id) ? 'Added to Favourite' : 'Add to Favourite' }}
           </ion-button>
@@ -73,13 +65,13 @@
         <div class="temp-section">
           <ion-icon name="sunny"></ion-icon>
           <div class="temp-cf-div">
-            <h1>{{currentWeatherData.temperature}}</h1>
+            <h1>{{convertTemperature()}}</h1>
             <!-- Temperature Unit Selector -->
-            <ion-segment value="default" mode="ios">
-              <ion-segment-button value="default">
+            <ion-segment value="C" mode="ios" (ionChange)="onSegmentChangeTempChange($event)">
+              <ion-segment-button value="C">
                 <ion-label>°C</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="segment">
+              <ion-segment-button value="F">
                 <ion-label>°F</ion-label>
               </ion-segment-button>
             </ion-segment>
@@ -87,7 +79,6 @@
           <h4>{{ currentWeatherData.condition }}</h4>
         </div>
       </div>
-      <!-- </ng-container> -->
       <!-- Weather Details Section -->
       <div class="detail-div">
         @for (data of detailsWeather; track data) {
@@ -116,7 +107,8 @@
           <div class="list-subitem">
             <ion-text class="city-name">{{ fav.location }}</ion-text>
             <ion-text class="center-text">
-              <ion-icon [name]="fav.icon"></ion-icon> <h1>{{ fav.temperature }}°</h1> {{ fav.condition }}
+              <ion-icon [name]="fav.icon"></ion-icon>
+              <h1>{{ fav.temperature }}°</h1> {{ fav.condition }}
             </ion-text>
             <ion-icon name="heart" class="fav-icon"></ion-icon>
           </div>
@@ -144,9 +136,11 @@
           <div class="list-subitem">
             <ion-text class="city-name">{{ search.location }}</ion-text>
             <ion-text class="center-text">
-              <ion-icon [name]="search.icon"></ion-icon> <h1>{{ search.temperature }}°</h1> {{ search.condition }}
+              <ion-icon [name]="search.icon"></ion-icon>
+              <h1>{{ search.temperature }}°</h1> {{ search.condition }}
             </ion-text>
-            <ion-icon [ngClass]="{ 'fav-icon': isFavouriteCheck(search.id) }" [name]="isFavouriteCheck(search.id) ? 'heart' : 'heart-outline'"></ion-icon>
+            <ion-icon [ngClass]="{ 'fav-icon': isFavouriteCheck(search.id) }"
+              [name]="isFavouriteCheck(search.id) ? 'heart' : 'heart-outline'"></ion-icon>
           </div>
         </ion-item>
         } @empty {
@@ -158,174 +152,18 @@
       </ion-list>
     </ion-segment-content>
   </ion-segment-view>
-
-  <!-- Weather Details Section -->
-  <!-- <div class="detail-div">
-    @for (data of detailsWeather; track data) {
-    <div class="details-subdiv">
-      <ion-icon [name]="data.icon"></ion-icon>
-      <div>
-        <ion-label>{{ data.title }}</ion-label>
-        <ion-label>{{ data.unit }}</ion-label>
-      </div>
-    </div>
-    }
-  </div> -->
 </ion-content>
-
-<!-- <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <div class="header-div">
-      <ion-title> <ion-icon name="cloudy"></ion-icon> WEATHER</ion-title>
-      <ion-searchbar></ion-searchbar>
-    </div>
-  </ion-toolbar>
-</ion-header>
-<ion-content [fullscreen]="true">
-  <div class="main-menu-div">
-    <ion-segment class="main-menu">
-      <ion-segment-button value="home" content-id="first">
-        <ion-label>HOME</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="fa" content-id="second">
-        <ion-label>FAVOURITE</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="third" content-id="third">
-        <ion-label>RECENT SEARCH</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-    <div class="datetime">
-      {{ currentDate | date:'EEE, d MMM y hh:mm a' }}
-    </div>
-  </div>
-  <ion-segment-view class="main-menu-view">
-    <ion-segment-content id="first"><ng-container [ngSwitch]="selectedTab">
-        <div *ngSwitchCase="'home'" class="main-home-div">
-          <div>
-            <h2>
-              {{ currentLocation }}
-            </h2>
-            <ion-button fill="clear" [ngClass]="{ 'active': isFavourite }" (click)="toggleFavourite()"
-              aria-label="Toggle Favourite">
-              <ion-icon [name]="isFavourite ? 'heart' : 'heart-outline'"></ion-icon>
-              {{ isFavourite ? ' Added to Favourite' : ' Add to Favourite' }}
-            </ion-button>
-          </div>
-          <div class="temp-section">
-            <ion-icon name="sunny"></ion-icon>
-            <div class="temp-cf-div">
-              <h1>87</h1>
-              <ion-segment value="default" mode="ios">
-                <ion-segment-button value="default">
-                  <ion-label>°C</ion-label>
-                </ion-segment-button>
-                <ion-segment-button value="segment">
-                  <ion-label>°F</ion-label>
-                </ion-segment-button>
-              </ion-segment>
-            </div>
-            <h4>Mostly Sunny</h4>
-          </div>
-        </div>
-      </ng-container></ion-segment-content>
-    <ion-segment-content id="second" class="favourite-main">
-      <ion-list>
-        <ion-list-header>
-          <ion-label></ion-label>
-          <ion-button>See All</ion-button>
-        </ion-list-header>
-        <ion-item>
-          <div class="list-subitem">
-            <ion-text>Udapi, karnataka</ion-text>
-            <ion-text class="center-text "> <ion-icon name="sunny"></ion-icon> 31° Mostly Sunny</ion-text>
-            <ion-icon [name]="isFavourite ? 'heart' : 'heart-outline'"></ion-icon>
-          </div>
-        </ion-item>
-      </ion-list>
-    </ion-segment-content>
-    <ion-segment-content id="third" class="favourite-main">
-      <ion-list>
-        <ion-list-header>
-          <ion-label></ion-label>
-          <ion-button>See All</ion-button>
-        </ion-list-header>
-        <ion-item>
-          <div class="list-subitem">
-            <ion-text>Udapi, karnataka</ion-text>
-            <ion-text class="center-text "> <ion-icon name="sunny"></ion-icon> 31° Mostly Sunny</ion-text>
-            <ion-icon [name]="isFavourite ? 'heart' : 'heart-outline'"></ion-icon>
-          </div>
-        </ion-item>
-      </ion-list>
-    </ion-segment-content>
-  </ion-segment-view>
-
-  <div class="detail-div">
-    @for (data of detailsWeather; track data) {
-    <div class="details-subdiv">
-      <ion-icon [name]="data.icon"></ion-icon>
-      <div>
-        <ion-label>{{data.title}}</ion-label>
-        <ion-label>{{data.unit}}</ion-label>
-      </div>
-    </div>
+<div *ngIf="popoverOpen" #popoverContainer class="popover-container">
+  <ion-list>
+    @for (weather of filteredWeatherData; track weather) {
+    <!-- <ion-item *ngFor="let weather of filteredWeatherData" (click)="onSelectItem(weather)"> -->
+    <ion-item *ngFor="let weather of filteredWeatherData" (click)="onSelectItem(weather)">
+      <ion-icon slot="start" [name]="weather.icon"></ion-icon>
+      <ion-label>
+        <h2>{{ weather.location }}</h2>
+        <p>{{ weather.temperature }}°C - {{ weather.condition }}</p>
+      </ion-label>
+    </ion-item>
     }
-  </div>
-</ion-content> -->
-
-
-<!-- new optimized code  -->
-
-<!--     
-    <ion-segment class="main-menu">
-      <ion-segment-button value="home" content-id="first">
-        <ion-label>HOME</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="fa" content-id="second">
-        <ion-label>FAVOURITE</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="third" content-id="third">
-        <ion-label>RECENT SEARCH</ion-label>
-      </ion-segment-button>
-    </ion-segment> -->
-
-<!-- <div id="container">
-    <ion-toolbar class="custom-toolbar">
-      <div class="web-tabs-main">
-        <div class="tabs-container">
-          @for (tab of tabs; track tab) {
-            <ion-button fill="clear" [ngClass]="{ 'active': selectedTab === tab.id }" (click)="selectedTab = tab.id">
-              {{ tab.label }}
-            </ion-button>
-          }
-        </div>
-
-        <div class="datetime">
-          {{ currentDate | date:'EEE, d MMM y hh:mm a' }}
-        </div>
-      </div>
-    </ion-toolbar>
-
-    <ng-container [ngSwitch]="selectedTab">
-      <div *ngSwitchCase="'home'" class="main-home-div">
-        <div>
-          <h2>
-            {{ currentLocation }}
-          </h2>
-          <ion-button fill="clear" [ngClass]="{ 'active': isFavourite }" (click)="toggleFavourite()" aria-label="Toggle Favourite">
-            <ion-icon [name]="isFavourite ? 'heart' : 'heart-outline'"></ion-icon>
-            {{ isFavourite ? ' Added to Favourite' : ' Add to Favourite' }}
-          </ion-button>
-        </div>
-        <div>
-
-        </div>
-      </div>
-
-      <h2 *ngSwitchCase="'favourite'">Favourite Content</h2>
-      <h2 *ngSwitchCase="'recent'">Recent Search Content</h2>
-    </ng-container>
-  </div> -->
+  </ion-list>
+</div>

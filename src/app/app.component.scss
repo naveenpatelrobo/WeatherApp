@@ -20,5 +20,9 @@ ion-app {
 
   ion-content{
     --ion-background-color:#fff !important;
+
+    ion-list{
+      background: #fff;
+    }
   }
 }

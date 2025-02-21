@@ -1,7 +1,5 @@
-import { Component, computed, HostListener, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, HostListener, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { WeatherService } from '../services/weather.service';
-import { FormControl } from '@angular/forms';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -12,24 +10,26 @@ import Swal from 'sweetalert2';
 })
 
 export class FolderPage implements OnInit {
-  // public folder!: string;
-  // private activatedRoute = inject(ActivatedRoute);
-  selectedTab: string = 'home';
   currentDate: Date = new Date();
-  currentLocation: string = "Udapi, karnataka";
-  isFavourite: boolean = false; // Initially not selected
   currentWeatherData: any = {};
-  masterData: any = [];
   detailsWeather: any = [];
   favourites: any = [];
   recentSearches: any = [];
   selectedSegment = '';
-  // selectedSegment: WritableSignal<string> = signal('home');
+  weatherData: any[] = [];
+  filteredWeatherData: any[] = [];
+  // showList: boolean = false;
+  searchTerm: string = '';
+
+  searchQuery: string = '';
+  popoverOpen: boolean = false;
+
   menuTabs = [
     { value: 'home', contentId: 'home', routerLink: '/folder/home', label: 'HOME' },
     { value: 'favourite', contentId: 'favourite', routerLink: '/folder/favourite', label: 'FAVOURITE' },
     { value: 'recentSearch', contentId: 'recentSearch', routerLink: '/folder/recent-search', label: 'RECENT SEARCH' }
   ];
+  temperatureUnitSelected: any = 'C';
 
   constructor(private weatherService: WeatherService) {
     // Update time every minute
@@ -39,36 +39,35 @@ export class FolderPage implements OnInit {
   }
 
 
-  weatherData: any[] = [];
-  filteredWeatherData: any[] = [];
-  searchControl: FormControl = new FormControl('');
-  showList: boolean = false;
-  searchTerm: string = '';
   ngOnInit() {
-    // this.folder = this.activatedRoute.snapshot.paramMap.get('id') as string;
-    this.loadWeatherData();
+    // load initial Data 
     this.loadCurrentData();
     this.loadWeatherDetails();
     this.getFavouriteWeatherData();
     this.getRecentSearchData();
 
+    // setting search list
     this.weatherData = this.weatherService.getWeatherData();
     this.filteredWeatherData = [...this.weatherData];
 
+    // handle click from sideNav
     this.weatherService.tabData$.subscribe(data => {
-     this.changeSegment(data) // Update local variable when data changes
+      this.changeSegment(data) // Update local variable when data changes
     });
   }
 
-  isFavouriteCheck(id:any) {
+  // check records is in favourite data or not 
+  isFavouriteCheck(id: any) {
     return this.favourites.some((item: any) => item.id === id);
   }
 
+  // add remove records in favourite data
   toggleFavourite() {
     this.weatherService.updateFavouriteweatherData(this.currentWeatherData.id)
     this.getFavouriteWeatherData();
   }
 
+  // based on search keyword filter search list 
   filterWeatherData() {
     if (!this.searchTerm || this.searchTerm.trim() === '') {
       this.filteredWeatherData = [...this.weatherData];
@@ -80,65 +79,50 @@ export class FolderPage implements OnInit {
     }
   }
 
-  onSearchFocus() {
-    this.showList = true;
-  }
-
+  // on selection of search list, update records 
   onSelectItem(seletcedWeather: string) {
     // this.searchControl.setValue(location); // Set selected value
     this.currentWeatherData = seletcedWeather;
-    console.log(this.searchControl.value);
-    this.showList = false; // Hide list after selection
+    // console.log(this.searchControl.value);
+    // this.showList = false; // Hide list after selection
     this.weatherService.updateSearchWeather(seletcedWeather);
     this.getRecentSearchData();
     this.changeSegment('home')
+    this.searchTerm = '';
+    this.popoverOpen = false;
   }
 
-  @HostListener('document:click', ['$event'])
-  handleClickOutside(event: Event) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.search-container')) {
-      this.showList = false;
-    }
-  }
-  /**
-  * Fetch all weather data from the service.
-  */
-  loadWeatherData() {
-    // this.favourites = this.weatherService.getWeatherData();
-    this.masterData = this.weatherService.getMasterData();
-  }
-
+  // load favourite tab data 
   getFavouriteWeatherData() {
     this.favourites = this.weatherService.getFavouriteWeatherData();
-    console.log('this.favourites', this.favourites)
   }
 
-  getRecentSearchData(){
+  // load recent search tab data 
+  getRecentSearchData() {
     this.recentSearches = this.weatherService.getRecentSearchedWeatherData();
   }
 
+  // load detail weather tab data 
   loadWeatherDetails() {
     this.detailsWeather = this.weatherService.getcurrentWeatherDetails();
   }
 
+  // load intial current home tab data 
   loadCurrentData() {
     this.currentWeatherData = this.weatherService.getCurrentCityData();
   }
 
-
   // Manually change the segment
   changeSegment(segment: any) {
     this.selectedSegment = segment;
-    // this.selectedSegment.set(segment)
   }
 
   // Handles user segment change
   onSegmentChange(event: any) {
-    console.log('Segment changed:', event.detail.value);
     this.selectedSegment = event.detail.value;
   }
 
+  // handle remove all favourite records / confirmation popover
   removeAllFavourite(flag: string) {
     Swal.fire({
       title: "Are you sure?",
@@ -166,6 +150,7 @@ export class FolderPage implements OnInit {
     });
   }
 
+  // handle remove all recent searched records / confirmation popover
   removeAllrecentSearch(flag: string) {
     Swal.fire({
       title: "Are you sure?",
@@ -193,12 +178,43 @@ export class FolderPage implements OnInit {
     });
   }
 
-  convertTemperature(temperatureUnit:any,temperature:any): number {
-    if (temperatureUnit === 'C') {
-      return (temperature * 9) / 5 + 32; // C to F 
+  // convert temperature
+  convertTemperature(): number {
+    if (this.temperatureUnitSelected === 'C') {
+      return this.currentWeatherData.temperature; // C to F 
     } else {
-      return ((temperature - 32) * 5) / 9; // F to C
+      return (this.currentWeatherData.temperature * 9) / 5 + 32; // C to F 
+      // return ((this.currentWeatherData.temperature - 32) * 5) / 9; // F to C
     }
   }
 
+  onSegmentChangeTempChange(event: any) {
+    this.temperatureUnitSelected = event.detail.value;
+    console.log('hello - ', event.detail.value)
+  }
+
+  openPopover(event: any) {
+    this.popoverOpen = true; // Open the popover
+    this.filterWeatherData()
+    // this.filterFruits(); // Ensure filtered list appears immediately
+  }
+
+  // filterFruits() {
+  //   console.log(this.weatherData, this.searchQuery)
+  //   this.filteredWeatherData = this.weatherData.filter(fruit =>
+  //     fruit.location.toLowerCase().includes(this.searchQuery.toLowerCase())
+  //   );
+  // }
+
+  // selectFruit(fruit: string) {
+  //   this.searchQuery = fruit;
+  //   this.popoverOpen = false; // Close popover after selection
+  // }
+
+  popOverCloseOutSideClick() {
+    setTimeout(() => {
+      this.popoverOpen = false;
+      this.searchTerm = '';
+    }, 500);
+  }
 }
